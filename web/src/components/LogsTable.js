@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Label} from 'semantic-ui-react';
 import {API, copy, isAdmin, showError, showSuccess, timestamp2string} from '../helpers';
 
-import {Table, Avatar, Tag, Form, Button, Layout, Select, Popover, Modal, Spin} from '@douyinfe/semi-ui';
+import {Table, Avatar, Tag, Form, Button, Layout, Select, Popover, Modal, Spin, Space} from '@douyinfe/semi-ui';
 import {ITEMS_PER_PAGE} from '../constants';
 import {renderNumber, renderQuota, stringToColor} from '../helpers/render';
 import {
@@ -18,11 +18,9 @@ import {
     IconHome,
     IconMore
 } from '@douyinfe/semi-icons';
+import Paragraph from "@douyinfe/semi-ui/lib/es/typography/paragraph";
 
-const {Sider, Content, Header} = Layout;
-const {Column} = Table;
-
-
+const {Header} = Layout;
 function renderTimestamp(timestamp) {
     return (
         <>
@@ -53,6 +51,25 @@ function renderType(type) {
             return <Tag color='purple' size='large'> 系统 </Tag>;
         default:
             return <Tag color='black' size='large'> 未知 </Tag>;
+    }
+}
+
+function renderIsStream(bool) {
+    if (bool) {
+        return <Tag color='blue' size='large'>流</Tag>;
+    } else {
+        return <Tag color='purple' size='large'>非流</Tag>;
+    }
+}
+
+function renderUseTime(type) {
+    const time = parseInt(type);
+    if (time < 101) {
+        return <Tag color='green' size='large'> {time} s </Tag>;
+    } else if (time < 300) {
+        return <Tag color='orange' size='large'> {time} s </Tag>;
+    } else {
+        return <Tag color='red' size='large'> {time} s </Tag>;
     }
 }
 
@@ -143,6 +160,20 @@ const LogsTable = () => {
             },
         },
         {
+            title: '用时',
+            dataIndex: 'use_time',
+            render: (text, record, index) => {
+                return (
+                    <div>
+                        <Space>
+                            {renderUseTime(text)}
+                            {renderIsStream(record.is_stream)}
+                        </Space>
+                    </div>
+                );
+            },
+        },
+        {
             title: '提示',
             dataIndex: 'prompt_tokens',
             render: (text, record, index) => {
@@ -189,6 +220,11 @@ const LogsTable = () => {
         {
             title: '详情',
             dataIndex: 'content',
+            render: (text, record, index) => {
+                return <Paragraph ellipsis={{ rows: 2, showTooltip: { type: 'popover', opts: { style: { width: 240 } } } }} style={{ maxWidth: 240}}>
+                    {text}
+                </Paragraph>
+            }
         }
     ];
 
